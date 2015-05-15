@@ -11,7 +11,7 @@
 input double   TakeProfit=50.0;
 input double   StopLoss=80.0;
 input double   Lots=0.1;
-input double   TrailingStop=30.0;
+input double   TrailingStop=15.0;
 input int      WorkPeriod=PERIOD_M1;
 input int      MaxTrades=2;
 input bool     ConsolidateMode=false;
@@ -83,7 +83,7 @@ void OnTick()
 				High[4]<BandUp[4] && High[5]<BandUp[5] && (Bid+15*Point)>BandUp[0] && (bBuyOpened==false))
 			{
 				bBuyOpened = true;
-				ticket=OrderSend(Symbol(),OP_BUY,Lots,Ask,3,Ask-2*TakeProfit*Point,Ask+TakeProfit*Point,"Band beta buy",16384,0,Green);
+				ticket=OrderSend(Symbol(),OP_BUY,Lots,Ask,3,Ask-StopLoss*Point,Ask+TakeProfit*Point,"Band beta buy",16384,0,Green);
 				Print("Symbol=",Symbol(), 
 					"    OP_BUY=",OP_BUY,
 					"    Lots=",Lots,
@@ -112,7 +112,7 @@ void OnTick()
 				Low[4]>BandLow[4] && Low[5]>BandLow[5] && Bid<BandLow[0] && (bSellOpened==false))
 			{
 				bSellOpened = true;
-				ticket=OrderSend(Symbol(),OP_SELL,Lots,Bid,3,Bid+2*TakeProfit*Point,Bid-TakeProfit*Point,"Band beta sell",16384,0,Red);
+				ticket=OrderSend(Symbol(),OP_SELL,Lots,Bid,3,Bid+StopLoss*Point,Bid-TakeProfit*Point,"Band beta sell",16384,0,Red);
 				Print("Symbol=",Symbol(), 
 					"    OP_SELL=",OP_SELL,
 					"    Lots=",Lots,
@@ -144,7 +144,7 @@ void OnTick()
 				High[4]<BandUp[4] && High[5]<BandUp[5] && Bid>BandUp[0] && (bSellOpened==false))
 			{
 				bSellOpened = true;
-				ticket=OrderSend(Symbol(),OP_SELL,Lots,Bid,3,Bid+2*TakeProfit*Point,Bid-TakeProfit*Point,"Consolidation sell",16384,0,Red);
+				ticket=OrderSend(Symbol(),OP_SELL,Lots,Bid,3,Bid+StopLoss*Point,Bid-TakeProfit*Point,"Consolidation sell",16384,0,Red);
 				Print("Symbol=",Symbol(), 
 					"    OP_SELL=",OP_SELL,
 					"    Lots=",Lots,
@@ -173,7 +173,7 @@ void OnTick()
 				Low[4]>BandLow[4] && Low[5]>BandLow[5] && Bid<BandLow[0] && (bBuyOpened==false))
 			{
 				bBuyOpened = true;
-				ticket=OrderSend(Symbol(),OP_BUY,Lots,Ask,3,Ask-2*TakeProfit*Point,Ask+TakeProfit*Point,"Consolidation buy",16384,0,Green);
+				ticket=OrderSend(Symbol(),OP_BUY,Lots,Ask,3,Ask-StopLoss*Point,Ask+TakeProfit*Point,"Consolidation buy",16384,0,Green);
 				Print("Symbol=",Symbol(), 
 					"    OP_BUY=",OP_BUY,
 					"    Lots=",Lots,
