@@ -11,7 +11,7 @@
 input double   TakeProfit=50.0;
 input double   StopLoss=80.0;
 input double   Lots=0.1;
-input double   TrailingStop=15.0;
+input double   TrailingStop=35.0;
 input int      WorkPeriod=PERIOD_M1;
 input int      MaxTrades=2;
 input bool     ConsolidateMode=false;
