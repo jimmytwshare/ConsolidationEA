@@ -119,23 +119,23 @@ int OnCalculate(const int rates_total,
 		if(val<0.0008) sConsolidate="Consolidate";
 		else sConsolidate="Beta";
 	}
-    ObjectCreate("ObjName", OBJ_LABEL, 0, 0, 0);
-	ObjectSetText("ObjName","Volatility: "+val+"-"+sConsolidate,20, "Verdana", clrYellow);
-    ObjectSet("ObjName", OBJPROP_CORNER, 0);
-    ObjectSet("ObjName", OBJPROP_XDISTANCE, 20);
-    ObjectSet("ObjName", OBJPROP_YDISTANCE, 20);
+    ObjectCreate("ObjName1", OBJ_LABEL, 0, 0, 0);
+	ObjectSetText("ObjName1","Volatility: "+val+"-"+sConsolidate,12, "Verdana", clrYellow);
+    ObjectSet("ObjName1", OBJPROP_CORNER, 0);
+    ObjectSet("ObjName1", OBJPROP_XDISTANCE, 20);
+    ObjectSet("ObjName1", OBJPROP_YDISTANCE, 20);
     
     ObjectCreate("ObjName2", OBJ_LABEL, 0, 0, 0);
-    ObjectSetText("ObjName2","Bid: "+Bid,20, "Verdana", clrRed);
+    ObjectSetText("ObjName2","Bid: "+Bid,12, "Verdana", clrRed);
     ObjectSet("ObjName2", OBJPROP_CORNER, 0);
     ObjectSet("ObjName2", OBJPROP_XDISTANCE, 20);
-    ObjectSet("ObjName2", OBJPROP_YDISTANCE, 60);
+    ObjectSet("ObjName2", OBJPROP_YDISTANCE, 40);
     
     ObjectCreate("ObjName3", OBJ_LABEL, 0, 0, 0);
-    ObjectSetText("ObjName3","Ask: "+Ask,20, "Verdana", clrGreenYellow);
+    ObjectSetText("ObjName3","Ask: "+Ask,12, "Verdana", clrGreenYellow);
     ObjectSet("ObjName3", OBJPROP_CORNER, 0);
     ObjectSet("ObjName3", OBJPROP_XDISTANCE, 20);
-    ObjectSet("ObjName3", OBJPROP_YDISTANCE, 100);
+    ObjectSet("ObjName3", OBJPROP_YDISTANCE, 60);
 //---- done
     return(rates_total);
 }
