@@ -29,6 +29,8 @@ void OnTick()
     double BandLow[6] = {0,0,0,0,0,0};
     double OpenPrice = 0;
     double dStopLoss = 0;
+    uint   LastBuyTick = 0;
+    uint   LastSellTick = 0;
 //---
 // initial data checks
 // it is important to make sure that the expert works with a normal
@@ -68,6 +70,8 @@ void OnTick()
             High[4]<BandUp[4] && High[5]<BandUp[5] && (Bid+15*Point)>BandUp[0] && (bBuyOpened==false))
         {
             bBuyOpened = true;
+            //--- Ticket interval must bigger than WorkPeriod
+            if((GetTickCount()-LastBuyTick)<(uint)WorkPeriod*60*1000) return;
             ticket=OrderSend(Symbol(),OP_BUY,Lots,Ask,3,Ask-StopLoss*Point,Ask+TakeProfit*Point,"Band beta buy",111,0,Green);
             Print("Symbol=",Symbol(), 
                 "    OP_BUY=",OP_BUY,
@@ -90,6 +94,7 @@ void OnTick()
             }
             else
                 Print("Error opening BUY order : ",GetLastError());
+            LastBuyTick = GetTickCount();
             return;
         }
         //--- check for short position (SELL) possibility
@@ -97,6 +102,8 @@ void OnTick()
             Low[4]>BandLow[4] && Low[5]>BandLow[5] && Bid<BandLow[0] && (bSellOpened==false))
         {
             bSellOpened = true;
+            //--- Ticket interval must bigger than WorkPeriod
+            if((GetTickCount()-LastSellTick)<(uint)WorkPeriod*60*1000) return;
             ticket=OrderSend(Symbol(),OP_SELL,Lots,Bid,3,Bid+StopLoss*Point,Bid-TakeProfit*Point,"Band beta sell",222,0,Red);
             Print("Symbol=",Symbol(), 
                 "    OP_SELL=",OP_SELL,
@@ -119,6 +126,7 @@ void OnTick()
             }
             else
                 Print("Error opening SELL order : ",GetLastError());
+            LastSellTick = GetTickCount();
             return;
         }
     } // end of if(total<2)
