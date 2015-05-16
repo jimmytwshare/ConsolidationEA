@@ -14,7 +14,6 @@ input double   Lots=0.1;
 input double   TrailingStop=35.0;
 input int      WorkPeriod=PERIOD_M1;
 input int      MaxTrades=2;
-input bool     ConsolidateMode=false;
 bool bBuyOpened = false;
 bool bSellOpened = false;
 //+------------------------------------------------------------------+
@@ -30,8 +29,6 @@ void OnTick()
     double BandLow[6] = {0,0,0,0,0,0};
     double OpenPrice = 0;
     double dStopLoss = 0;
-    bool   bConsolidate=ConsolidateMode;
-    double val=iStdDev(NULL,WorkPeriod,20,0,MODE_SMA,PRICE_CLOSE,0);
 //---
 // initial data checks
 // it is important to make sure that the expert works with a normal
@@ -40,16 +37,6 @@ void OnTick()
 // TrailingStop) in our case, we check TakeProfit
 // on a chart of less than 100 bars
 //---
-    if(WorkPeriod==PERIOD_M1)
-    {
-        if(val<0.0003) bConsolidate=true;
-        else bConsolidate=false;
-    }
-    else if(WorkPeriod==PERIOD_M5)
-    {
-        if(val<0.0008) bConsolidate=true;
-        else bConsolidate=false;
-    }
     if(Bars<100)
     {
         Print("bars less than 100");
@@ -76,128 +63,64 @@ void OnTick()
             Print("We have no money. Free Margin = ",AccountFreeMargin());
             return;
         }
-        if(bConsolidate==false)
+        //--- check for long position (BUY) possibility
+        if(High[1]<BandUp[1] && High[2]<BandUp[2] && High[3]<BandUp[3] &&
+            High[4]<BandUp[4] && High[5]<BandUp[5] && (Bid+15*Point)>BandUp[0] && (bBuyOpened==false))
         {
-            //--- check for long position (BUY) possibility
-            if(High[1]<BandUp[1] && High[2]<BandUp[2] && High[3]<BandUp[3] &&
-                High[4]<BandUp[4] && High[5]<BandUp[5] && (Bid+15*Point)>BandUp[0] && (bBuyOpened==false))
+            bBuyOpened = true;
+            ticket=OrderSend(Symbol(),OP_BUY,Lots,Ask,3,Ask-StopLoss*Point,Ask+TakeProfit*Point,"Band beta buy",111,0,Green);
+            Print("Symbol=",Symbol(), 
+                "    OP_BUY=",OP_BUY,
+                "    Lots=",Lots,
+                "    Ask=",Ask,
+                "    Ask-2*TakeProfit*Point=",Ask-2*TakeProfit*Point,
+                "    Ask+TakeProfit*Point=",Ask+TakeProfit*Point,
+                "    Band beta buy",
+                "    111"
+                "    0");
+            if(ticket>0)
             {
-                bBuyOpened = true;
-                ticket=OrderSend(Symbol(),OP_BUY,Lots,Ask,3,Ask-StopLoss*Point,Ask+TakeProfit*Point,"Band beta buy",111,0,Green);
-                Print("Symbol=",Symbol(), 
-                    "    OP_BUY=",OP_BUY,
-                    "    Lots=",Lots,
-                    "    Ask=",Ask,
-                    "    Ask-2*TakeProfit*Point=",Ask-2*TakeProfit*Point,
-                    "    Ask+TakeProfit*Point=",Ask+TakeProfit*Point,
-                    "    Band beta buy",
-                    "    111"
-                    "    0");
-                if(ticket>0)
-                {
-                    if(OrderSelect(ticket,SELECT_BY_TICKET,MODE_TRADES))
-                        Print("BUY order opened : ",OrderOpenPrice());
-                    OpenPrice = OrderOpenPrice();
-                    dStopLoss = OpenPrice-StopLoss*Point;
-                    if(dStopLoss<BandMain[0]) dStopLoss=BandMain[0];
-                    if(!OrderModify(ticket,OpenPrice,dStopLoss,OpenPrice+TakeProfit*Point,0,Green))
-                        Print("OrderModify error ",GetLastError());
-                }
-                else
-                    Print("Error opening BUY order : ",GetLastError());
-                return;
+                if(OrderSelect(ticket,SELECT_BY_TICKET,MODE_TRADES))
+                    Print("BUY order opened : ",OrderOpenPrice());
+                OpenPrice = OrderOpenPrice();
+                dStopLoss = OpenPrice-StopLoss*Point;
+                if(dStopLoss<BandMain[0]) dStopLoss=BandMain[0];
+                if(!OrderModify(ticket,OpenPrice,dStopLoss,OpenPrice+TakeProfit*Point,0,Green))
+                    Print("OrderModify error ",GetLastError());
             }
-            //--- check for short position (SELL) possibility
-            if(Low[1]>BandLow[1] && Low[2]>BandLow[2] && Low[3]>BandLow[3] &&
-                Low[4]>BandLow[4] && Low[5]>BandLow[5] && Bid<BandLow[0] && (bSellOpened==false))
-            {
-                bSellOpened = true;
-                ticket=OrderSend(Symbol(),OP_SELL,Lots,Bid,3,Bid+StopLoss*Point,Bid-TakeProfit*Point,"Band beta sell",222,0,Red);
-                Print("Symbol=",Symbol(), 
-                    "    OP_SELL=",OP_SELL,
-                    "    Lots=",Lots,
-                    "    Bid=",Bid,
-                    "    Bid+2*TakeProfit*Point=",Bid+2*TakeProfit*Point,
-                    "    Bid-TakeProfit*Point=",Bid-TakeProfit*Point,
-                    "    Band beta sell",
-                    "    222"
-                    "    0");
-                if(ticket>0)
-                {
-                    if(OrderSelect(ticket,SELECT_BY_TICKET,MODE_TRADES))
-                        Print("SELL order opened : ",OrderOpenPrice());
-                    OpenPrice = OrderOpenPrice();
-                    dStopLoss = OpenPrice+StopLoss*Point;
-                    if(dStopLoss>BandMain[0]) dStopLoss=BandMain[0];
-                    if(!OrderModify(ticket,OpenPrice,dStopLoss,OpenPrice-TakeProfit*Point,0,Green))
-                        Print("OrderModify error ",GetLastError());
-                }
-                else
-                    Print("Error opening SELL order : ",GetLastError());
-                return;
-            }
-        } // if(bConsolidate==false)
-        else if(bConsolidate==true)
+            else
+                Print("Error opening BUY order : ",GetLastError());
+            return;
+        }
+        //--- check for short position (SELL) possibility
+        if(Low[1]>BandLow[1] && Low[2]>BandLow[2] && Low[3]>BandLow[3] &&
+            Low[4]>BandLow[4] && Low[5]>BandLow[5] && Bid<BandLow[0] && (bSellOpened==false))
         {
-            //--- check for short position (SELL) possibility
-            if(High[1]<BandUp[1] && High[2]<BandUp[2] && High[3]<BandUp[3] &&
-                High[4]<BandUp[4] && High[5]<BandUp[5] && Bid>BandUp[0] && (bSellOpened==false))
+            bSellOpened = true;
+            ticket=OrderSend(Symbol(),OP_SELL,Lots,Bid,3,Bid+StopLoss*Point,Bid-TakeProfit*Point,"Band beta sell",222,0,Red);
+            Print("Symbol=",Symbol(), 
+                "    OP_SELL=",OP_SELL,
+                "    Lots=",Lots,
+                "    Bid=",Bid,
+                "    Bid+2*TakeProfit*Point=",Bid+2*TakeProfit*Point,
+                "    Bid-TakeProfit*Point=",Bid-TakeProfit*Point,
+                "    Band beta sell",
+                "    222"
+                "    0");
+            if(ticket>0)
             {
-                bSellOpened = true;
-                ticket=OrderSend(Symbol(),OP_SELL,Lots,Bid,3,Bid+StopLoss*Point,Bid-TakeProfit*Point,"Consolidation sell",444,0,Red);
-                Print("Symbol=",Symbol(), 
-                    "    OP_SELL=",OP_SELL,
-                    "    Lots=",Lots,
-                    "    Bid=",Bid,
-                    "    Bid+2*TakeProfit*Point=",Bid+2*TakeProfit*Point,
-                    "    Bid-TakeProfit*Point=",Bid-TakeProfit*Point,
-                    "    Consolidation sell",
-                    "    444"
-                    "    0");
-                if(ticket>0)
-                {
-                    if(OrderSelect(ticket,SELECT_BY_TICKET,MODE_TRADES))
-                        Print("SELL order opened : ",OrderOpenPrice());
-                    OpenPrice = OrderOpenPrice();
-                    dStopLoss = OpenPrice+StopLoss*Point;
-                    if(dStopLoss>BandMain[0]) dStopLoss=BandMain[0];
-                    if(!OrderModify(ticket,OpenPrice,dStopLoss,OpenPrice-TakeProfit*Point,0,Green))
-                        Print("OrderModify error ",GetLastError());
-                }
-                else
-                    Print("Error opening SELL order : ",GetLastError());
-                return;
+                if(OrderSelect(ticket,SELECT_BY_TICKET,MODE_TRADES))
+                    Print("SELL order opened : ",OrderOpenPrice());
+                OpenPrice = OrderOpenPrice();
+                dStopLoss = OpenPrice+StopLoss*Point;
+                if(dStopLoss>BandMain[0]) dStopLoss=BandMain[0];
+                if(!OrderModify(ticket,OpenPrice,dStopLoss,OpenPrice-TakeProfit*Point,0,Green))
+                    Print("OrderModify error ",GetLastError());
             }
-            //--- check for long position (BUY) possibility
-            if(Low[1]>BandLow[1] && Low[2]>BandLow[2] && Low[3]>BandLow[3] &&
-                Low[4]>BandLow[4] && Low[5]>BandLow[5] && Bid<BandLow[0] && (bBuyOpened==false))
-            {
-                bBuyOpened = true;
-                ticket=OrderSend(Symbol(),OP_BUY,Lots,Ask,3,Ask-StopLoss*Point,Ask+TakeProfit*Point,"Consolidation buy",333,0,Green);
-                Print("Symbol=",Symbol(), 
-                    "    OP_BUY=",OP_BUY,
-                    "    Lots=",Lots,
-                    "    Ask=",Ask,
-                    "    Ask-2*TakeProfit*Point=",Ask-2*TakeProfit*Point,
-                    "    Ask+TakeProfit*Point=",Ask+TakeProfit*Point,
-                    "    Consolidation buy",
-                    "    333"
-                    "    0");
-                if(ticket>0)
-                {
-                    if(OrderSelect(ticket,SELECT_BY_TICKET,MODE_TRADES))
-                        Print("BUY order opened : ",OrderOpenPrice());
-                    OpenPrice = OrderOpenPrice();
-                    dStopLoss = OpenPrice-StopLoss*Point;
-                    if(dStopLoss<BandMain[0]) dStopLoss=BandMain[0];
-                    if(!OrderModify(ticket,OpenPrice,dStopLoss,OpenPrice+TakeProfit*Point,0,Green))
-                        Print("OrderModify error ",GetLastError());
-                }
-                else
-                    Print("Error opening BUY order : ",GetLastError());
-                return;
-            }
-        } // if(bConsolidate==true)
+            else
+                Print("Error opening SELL order : ",GetLastError());
+            return;
+        }
     } // end of if(total<2)
     
     bBuyOpened=false;
@@ -207,12 +130,6 @@ void OnTick()
     {
         if(!OrderSelect(cnt,SELECT_BY_POS,MODE_TRADES))
             continue;
-
-        //ObjectCreate("ObjName", OBJ_LABEL, 0, 0, 0);
-        //ObjectSet("ObjName", OBJPROP_CORNER, 0);
-        //ObjectSet("ObjName", OBJPROP_XDISTANCE, 20);
-        //ObjectSet("ObjName", OBJPROP_YDISTANCE, 80);
-
         if(OrderType()<=OP_SELL &&   // check for opened position both OP_BUY=0 and OP_SELL=1
             OrderSymbol()==Symbol())  // check for symbol
         {
@@ -220,34 +137,8 @@ void OnTick()
             if(OrderType()==OP_BUY)
             {
                 bBuyOpened=true;
-                //ObjectSetText("ObjName", "BUY OPEN="+(string)OrderOpenPrice()+" SL="+(string)OrderStopLoss()+
-                    //" TP="+(string)OrderTakeProfit()+" Magic="+(string)OrderMagicNumber()+
-                    //" "+OrderComment(), 8, "Verdana", clrYellow);
                 //--- should it be closed?
-                if(bConsolidate==true && Bid>OrderOpenPrice() &&
-                   Bid>BandUp[0])
-                {
-                    if(!OrderClose(OrderTicket(),OrderLots(),Bid,3,Violet))
-                        Print("OrderClose error ",GetLastError());
-                    return;
-                }
-                //else Print("Bid>BandUp[0]"," Bid=",Bid," BandUp[0]=",BandUp[0]);
-                //--- Consolidation and beta boundary processing
-                if((OrderMagicNumber()==111 && val<0.00025) || // beta's buy 0.0003 - 0.00005 get into consolidation state
-                   (OrderMagicNumber()==333 && val>0.00035)) // consolidation's buy 0.0003 + 0.00005 get into beta state
-                {
-                    if(Bid<OrderOpenPrice()-Point*24)
-                    {
-                        if(!OrderClose(OrderTicket(),OrderLots(),Bid,3,Violet))
-                            Print("OrderClose error ",GetLastError());
-                    }
-                    else // set new StopLoss
-                    {
-                        if(!OrderModify(OrderTicket(),OrderOpenPrice(),OrderOpenPrice()-Point*24,OrderOpenPrice(),0,Green))
-                            Print("OrderModify error ",GetLastError());
-                    }
-                    return;
-                }
+
                 //--- check for trailing stop
                 if(TrailingStop>0)
                 {
@@ -266,34 +157,8 @@ void OnTick()
             else // go to short position
             {
                 bSellOpened=true;
-                //ObjectSetText("ObjName", "SELL OPEN="+(string)OrderOpenPrice()+" SL="+(string)OrderStopLoss()+
-                    //" TP="+(string)OrderTakeProfit()+" Magic="+(string)OrderMagicNumber()+
-                    //" "+OrderComment(), 8, "Verdana", clrYellow);
                 //--- should it be closed?
-                if(bConsolidate==true && Ask<OrderOpenPrice() &&
-                   Bid<BandLow[0])
-                {
-                    if(!OrderClose(OrderTicket(),OrderLots(),Ask,3,Violet))
-                        Print("OrderClose error ",GetLastError());
-                    return;
-                }
-                //else Print("Bid<BandLow[0]"," Bid=",Bid," BandLow[0]=",BandLow[0]);
-                //--- Consolidation and beta boundary processing
-                if((OrderMagicNumber()==222 && val<0.00025) || // beta's sell 0.0003 - 0.00005 get into consolidation state
-                   (OrderMagicNumber()==444 && val>0.00035)) // consolidation's sell 0.0003 + 0.00005 get into beta state
-                {
-                    if(Ask>OrderOpenPrice()+Point*24)
-                    {
-                        if(!OrderClose(OrderTicket(),OrderLots(),Ask,3,Violet))
-                            Print("OrderClose error ",GetLastError());
-                    }
-                    else // set new StopLoss
-                    {
-                        if(!OrderModify(OrderTicket(),OrderOpenPrice(),OrderOpenPrice()+Point*24,OrderOpenPrice(),0,Green))
-                            Print("OrderModify error ",GetLastError());
-                    }
-                    return;
-                }
+
                 //--- check for trailing stop
                 if(TrailingStop>0)
                 {
