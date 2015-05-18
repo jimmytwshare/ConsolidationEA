@@ -70,9 +70,9 @@ void OnTick()
         if(High[1]<BandUp[1] && High[2]<BandUp[2] && High[3]<BandUp[3] &&
             High[4]<BandUp[4] && High[5]<BandUp[5] && (Bid+15*Point)>BandUp[0] && (bBuyOpened==false))
         {
-            bBuyOpened = true;
             //--- Ticket interval must bigger than WorkPeriod
             if((GetTickCount()-LastBuyTick)<(uint)WorkPeriod*60*1000) return;
+            bBuyOpened = true;
             ticket=OrderSend(Symbol(),OP_BUY,Lots,Ask,3,Ask-StopLoss*Point,Ask+TakeProfit*Point,"Buy:"+(string)val,111,0,Green);
             Print("Symbol=",Symbol(), 
                 "    OP_BUY=",OP_BUY,
@@ -102,9 +102,9 @@ void OnTick()
         if(Low[1]>BandLow[1] && Low[2]>BandLow[2] && Low[3]>BandLow[3] &&
             Low[4]>BandLow[4] && Low[5]>BandLow[5] && Bid<BandLow[0] && (bSellOpened==false))
         {
-            bSellOpened = true;
             //--- Ticket interval must bigger than WorkPeriod
             if((GetTickCount()-LastSellTick)<(uint)WorkPeriod*60*1000) return;
+            bSellOpened = true;
             ticket=OrderSend(Symbol(),OP_SELL,Lots,Bid,3,Bid+StopLoss*Point,Bid-TakeProfit*Point,"Sell:"+(string)val,222,0,Red);
             Print("Symbol=",Symbol(), 
                 "    OP_SELL=",OP_SELL,
