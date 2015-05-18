@@ -9,12 +9,14 @@
 
 //---- indicator settings
 #property indicator_chart_window
-#property indicator_buffers 2
+#property indicator_buffers 4
 //--- input parameters
 input int      WorkPeriod=PERIOD_M1;
 //---- indicator buffers
 double ExtYellowBuffer[];
 double ExtRedBuffer[];
+double ExtBlueBuffer[];
+double ExtGreenBuffer[];
 //+------------------------------------------------------------------+
 //| Custom indicator initialization function                         |
 //+------------------------------------------------------------------+
@@ -24,18 +26,26 @@ void OnInit(void)
 //---- line shifts when drawing
     SetIndexShift(0,0);
     SetIndexShift(1,0);
+    SetIndexShift(2,0);
+    SetIndexShift(3,0);
 //---- first positions skipped when drawing
     //SetIndexDrawBegin(0,0);
 //---- 2 indicator buffers mapping
     SetIndexBuffer(0,ExtYellowBuffer);
     SetIndexBuffer(1,ExtRedBuffer);
+    SetIndexBuffer(2,ExtBlueBuffer);
+    SetIndexBuffer(3,ExtGreenBuffer);
 //---- drawing settings
     //SetIndexStyle(0,DRAW_LINE);
     SetIndexStyle(0,DRAW_ARROW,EMPTY,3,clrYellow);
     SetIndexStyle(1,DRAW_ARROW,EMPTY,3,clrRed);
+    SetIndexStyle(2,DRAW_ARROW,EMPTY,3,clrBlue);
+    SetIndexStyle(3,DRAW_ARROW,EMPTY,3,clrGreen);
 //---- index labels
     SetIndexLabel(0,"Buy");
     SetIndexLabel(1,"Sell");
+    SetIndexLabel(2,"BollingerBands");
+    SetIndexLabel(3,"Volatility");
   }
 //+------------------------------------------------------------------+
 //| BollingerBands Consolidation                                     |
@@ -52,13 +62,13 @@ int OnCalculate(const int rates_total,
                 const int &spread[])
   {
     int limit=rates_total-prev_calculated;
-    double BandUp[6] = {0,0,0,0,0,0};
-    double BandLow[6] = {0,0,0,0,0,0};
+    double BandUp[9] = {0,0,0,0,0,0,0,0,0};
+    double BandLow[9] = {0,0,0,0,0,0,0,0,0};
     int i=0;
-    double val=0;
 	string sConsolidate;
+    double val=iStdDev(NULL,WorkPeriod,20,0,MODE_SMA,PRICE_CLOSE,0);
    
-    for(i=1;i<=5;i++)
+    for(i=1;i<=8;i++)
     {
         BandUp[i]=iBands(NULL,WorkPeriod,20,2,0,PRICE_CLOSE,MODE_UPPER,i);
         BandLow[i]=iBands(NULL,WorkPeriod,20,2,0,PRICE_CLOSE,MODE_LOWER,i);
@@ -68,7 +78,10 @@ int OnCalculate(const int rates_total,
     {
         ExtYellowBuffer[i]=0;
         ExtRedBuffer[i]=0;
+        ExtBlueBuffer[i]=0;
+        ExtGreenBuffer[i]=0;
     }
+
     if(high[1]<BandUp[1])
     {
         ExtYellowBuffer[1]=high[1];
@@ -81,8 +94,18 @@ int OnCalculate(const int rates_total,
                 if(high[4]<BandUp[4])
                 {
                     ExtYellowBuffer[4]=high[4];
-                    if(high[5]<BandUp[5]) 
+                    if(high[5]<BandUp[5])
+                    {
                         ExtYellowBuffer[5]=high[5];
+                        if(WorkPeriod==PERIOD_M1)
+                        {
+                            if(val<0.0003) ExtGeenBuffer[0]=close[0];
+                        }
+                        else if(WorkPeriod==PERIOD_M5)
+                        {
+                            if(val<0.0008) ExtGeenBuffer[0]=close[0];
+                        }
+                    }
                 }
             }
         }
@@ -100,15 +123,36 @@ int OnCalculate(const int rates_total,
                 if(BandLow[4]<low[4])
                 {
                     ExtRedBuffer[4]=low[4];
-                    if(BandLow[5]<low[5]) 
+                    if(BandLow[5]<low[5])
+                    {
                         ExtRedBuffer[5]=low[5];               
+                        if(WorkPeriod==PERIOD_M1)
+                        {
+                            if(val<0.0003) ExtGeenBuffer[0]=close[0];
+                        }
+                        else if(WorkPeriod==PERIOD_M5)
+                        {
+                            if(val<0.0008) ExtGeenBuffer[0]=close[0];
+                        }
+                    }
                 }
             }
         }
     }
     //Print("rates_total",rates_total," prev_calculated", prev_calculated," limit",limit);
+    if(high[1]>BandUp[1] && high[2]>BandUp[2] && high[3]>BandUp[3] &&
+       high[4]<BandUp[4] && high[5]<BandUp[5] && high[6]<BandUp[6] &&
+       high[7]<BandUp[7] && high[8]<BandUp[8])
+    {
+        ExtBlueBuffer[0]=open[0];
+    }
+    if(BandLow[1]>low[1] && BandLow[2]>low[2] && BandLow[3]>low[3] &&
+       BandLow[4]<low[4] && BandLow[5]<low[5] && BandLow[6]<low[6] &&
+       BandLow[7]<low[7] && BandLow[8]<low[8])
+    {
+        ExtBlueBuffer[0]=open[0];
+    }
     
-    val=iStdDev(NULL,WorkPeriod,20,0,MODE_SMA,PRICE_CLOSE,0);
 	if(WorkPeriod==PERIOD_M1)
 	{
 		if(val<0.0003) sConsolidate="Consolidate";
