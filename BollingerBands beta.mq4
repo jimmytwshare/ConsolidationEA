@@ -29,8 +29,8 @@ void OnTick()
     double BandLow[6] = {0,0,0,0,0,0};
     double OpenPrice = 0;
     double dStopLoss = 0;
-    uint   LastBuyTick = 0;
-    uint   LastSellTick = 0;
+    static uint   LastBuyTick = 0;
+    static uint   LastSellTick = 0;
     double val=iStdDev(NULL,WorkPeriod,20,0,MODE_SMA,PRICE_CLOSE,0);
 //---
 // initial data checks
@@ -73,7 +73,7 @@ void OnTick()
             bBuyOpened = true;
             //--- Ticket interval must bigger than WorkPeriod
             if((GetTickCount()-LastBuyTick)<(uint)WorkPeriod*60*1000) return;
-            ticket=OrderSend(Symbol(),OP_BUY,Lots,Ask,3,Ask-StopLoss*Point,Ask+TakeProfit*Point,"Buy:"+val,111,0,Green);
+            ticket=OrderSend(Symbol(),OP_BUY,Lots,Ask,3,Ask-StopLoss*Point,Ask+TakeProfit*Point,"Buy:"+(string)val,111,0,Green);
             Print("Symbol=",Symbol(), 
                 "    OP_BUY=",OP_BUY,
                 "    Lots=",Lots,
@@ -105,7 +105,7 @@ void OnTick()
             bSellOpened = true;
             //--- Ticket interval must bigger than WorkPeriod
             if((GetTickCount()-LastSellTick)<(uint)WorkPeriod*60*1000) return;
-            ticket=OrderSend(Symbol(),OP_SELL,Lots,Bid,3,Bid+StopLoss*Point,Bid-TakeProfit*Point,"Sell:"+val,222,0,Red);
+            ticket=OrderSend(Symbol(),OP_SELL,Lots,Bid,3,Bid+StopLoss*Point,Bid-TakeProfit*Point,"Sell:"+(string)val,222,0,Red);
             Print("Symbol=",Symbol(), 
                 "    OP_SELL=",OP_SELL,
                 "    Lots=",Lots,
