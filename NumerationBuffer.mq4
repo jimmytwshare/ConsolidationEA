@@ -99,11 +99,11 @@ int OnCalculate(const int rates_total,
                         ExtYellowBuffer[5]=high[5];
                         if(WorkPeriod==PERIOD_M1)
                         {
-                            if(val<0.0003) ExtGeenBuffer[0]=close[0];
+                            if(val<0.0003) ExtGreenBuffer[0]=close[0];
                         }
                         else if(WorkPeriod==PERIOD_M5)
                         {
-                            if(val<0.0008) ExtGeenBuffer[0]=close[0];
+                            if(val<0.0008) ExtGreenBuffer[0]=close[0];
                         }
                     }
                 }
@@ -128,11 +128,11 @@ int OnCalculate(const int rates_total,
                         ExtRedBuffer[5]=low[5];               
                         if(WorkPeriod==PERIOD_M1)
                         {
-                            if(val<0.0003) ExtGeenBuffer[0]=close[0];
+                            if(val<0.0003) ExtGreenBuffer[0]=close[0];
                         }
                         else if(WorkPeriod==PERIOD_M5)
                         {
-                            if(val<0.0008) ExtGeenBuffer[0]=close[0];
+                            if(val<0.0008) ExtGreenBuffer[0]=close[0];
                         }
                     }
                 }
