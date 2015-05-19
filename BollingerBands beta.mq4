@@ -14,6 +14,7 @@ input double   Lots=0.1;
 input double   TrailingStop=35.0;
 input int      WorkPeriod=PERIOD_M1;
 input int      MaxTrades=2;
+input bool     bDebug=true;
 bool bBuyOpened = false;
 bool bSellOpened = false;
 //+------------------------------------------------------------------+
@@ -70,8 +71,17 @@ void OnTick()
         if(High[1]<BandUp[1] && High[2]<BandUp[2] && High[3]<BandUp[3] &&
             High[4]<BandUp[4] && High[5]<BandUp[5] && (Bid+15*Point)>BandUp[0] && (bBuyOpened==false))
         {
+            if(bDebug==true)
+            {
+                Print("Bid+15*Point=",(int)(((Bid+15*Point)-BandUp[0])*100000), 
+                      ",H[1]=",(int)((BandUp[1]-High[1])*100000),
+                      ",H[2]=",(int)((BandUp[2]-High[2])*100000),
+                      ",H[3]=",(int)((BandUp[3]-High[3])*100000),
+                      ",H[4]=",(int)((BandUp[4]-High[4])*100000),
+                      ",H[5]=",(int)((BandUp[5]-High[5])*100000));
+            }
             //--- Ticket interval must bigger than WorkPeriod
-            if((GetTickCount()-LastBuyTick)<(uint)WorkPeriod*60*1000) return;
+            if((GetTickCount()-LastBuyTick)<(uint)WorkPeriod*60*1000*6) return;
             bBuyOpened = true;
             ticket=OrderSend(Symbol(),OP_BUY,Lots,Ask,3,Ask-StopLoss*Point,Ask+TakeProfit*Point,"Buy:"+(string)val,111,0,Green);
             Print("Symbol=",Symbol(), 
@@ -102,8 +112,17 @@ void OnTick()
         if(Low[1]>BandLow[1] && Low[2]>BandLow[2] && Low[3]>BandLow[3] &&
             Low[4]>BandLow[4] && Low[5]>BandLow[5] && Bid<BandLow[0] && (bSellOpened==false))
         {
+            if(bDebug==true)
+            {
+                Print("Bid=",(int)((BandLow[0]-Bid)*100000), 
+                      ",L[1]=",(int)((Low[1]-BandLow[1])*100000),
+                      ",L[2]=",(int)((Low[2]-BandLow[2])*100000),
+                      ",L[3]=",(int)((Low[3]-BandLow[3])*100000),
+                      ",L[4]=",(int)((Low[4]-BandLow[4])*100000),
+                      ",L[5]=",(int)((Low[5]-BandLow[5])*100000));
+            }
             //--- Ticket interval must bigger than WorkPeriod
-            if((GetTickCount()-LastSellTick)<(uint)WorkPeriod*60*1000) return;
+            if((GetTickCount()-LastSellTick)<(uint)WorkPeriod*60*1000*6) return;
             bSellOpened = true;
             ticket=OrderSend(Symbol(),OP_SELL,Lots,Bid,3,Bid+StopLoss*Point,Bid-TakeProfit*Point,"Sell:"+(string)val,222,0,Red);
             Print("Symbol=",Symbol(), 
