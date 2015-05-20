@@ -88,7 +88,7 @@ void OnTick()
                 "    OP_BUY=",OP_BUY,
                 "    Lots=",Lots,
                 "    Ask=",Ask,
-                "    Ask-2*TakeProfit*Point=",Ask-2*TakeProfit*Point,
+                "    Ask-StopLoss*Point=",Ask-StopLoss*Point,
                 "    Ask+TakeProfit*Point=",Ask+TakeProfit*Point,
                 "    Band beta buy",
                 "    111"
@@ -129,7 +129,7 @@ void OnTick()
                 "    OP_SELL=",OP_SELL,
                 "    Lots=",Lots,
                 "    Bid=",Bid,
-                "    Bid+2*TakeProfit*Point=",Bid+2*TakeProfit*Point,
+                "    Bid+StopLoss*Point=",Bid+StopLoss*Point,
                 "    Bid-TakeProfit*Point=",Bid-TakeProfit*Point,
                 "    Band beta sell",
                 "    222"
