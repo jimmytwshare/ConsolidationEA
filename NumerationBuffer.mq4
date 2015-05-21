@@ -66,12 +66,12 @@ int OnCalculate(const int rates_total,
     double BandLow[9] = {0,0,0,0,0,0,0,0,0};
     int i=0;
 	string sConsolidate;
-    double val=iStdDev(NULL,WorkPeriod,20,0,MODE_SMA,PRICE_CLOSE,0);
+    double val=iStdDev(NULL,WorkPeriod,20,0,MODE_LWMA,PRICE_TYPICAL,0);
    
     for(i=1;i<=8;i++)
     {
-        BandUp[i]=iBands(NULL,WorkPeriod,20,2,0,PRICE_CLOSE,MODE_UPPER,i);
-        BandLow[i]=iBands(NULL,WorkPeriod,20,2,0,PRICE_CLOSE,MODE_LOWER,i);
+        BandUp[i]=iBands(NULL,WorkPeriod,20,2,0,PRICE_HIGH,MODE_UPPER,i);
+        BandLow[i]=iBands(NULL,WorkPeriod,20,2,0,PRICE_LOW,MODE_LOWER,i);
     }
 //---- main loop
     for(i=0; i<limit; i++)
