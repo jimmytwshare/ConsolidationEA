@@ -26,13 +26,14 @@ void OnTick()
     int    cnt,ticket,total;
     int i;
     double BandUp[6] = {0,0,0,0,0,0};
-    double BandMain[6] = {0,0,0,0,0,0};
+    double BandUpMain[6] = {0,0,0,0,0,0};
     double BandLow[6] = {0,0,0,0,0,0};
+    double BandLowMain[6] = {0,0,0,0,0,0};
     double OpenPrice = 0;
     double dStopLoss = 0;
     static uint   LastBuyTick = 0;
     static uint   LastSellTick = 0;
-    double val=iStdDev(NULL,WorkPeriod,20,0,MODE_SMA,PRICE_CLOSE,0);
+    double val=iStdDev(NULL,WorkPeriod,20,0,MODE_LWMA,PRICE_TYPICAL,0);
 //---
 // initial data checks
 // it is important to make sure that the expert works with a normal
@@ -54,9 +55,10 @@ void OnTick()
 //--- to simplify the coding and speed up access data are put into internal variables
     for(i=0;i<6;i++)
     {
-        BandUp[i]=iBands(NULL,WorkPeriod,20,2,0,PRICE_CLOSE,MODE_UPPER,i);
-        BandMain[i]=iBands(NULL,WorkPeriod,20,2,0,PRICE_CLOSE,MODE_MAIN,i);
-        BandLow[i]=iBands(NULL,WorkPeriod,20,2,0,PRICE_CLOSE,MODE_LOWER,i);
+        BandUp[i]=iBands(NULL,WorkPeriod,20,2,0,PRICE_HIGH,MODE_UPPER,i);
+        BandUpMain[i]=iBands(NULL,WorkPeriod,20,2,0,PRICE_HIGH,MODE_MAIN,i);
+        BandLow[i]=iBands(NULL,WorkPeriod,20,2,0,PRICE_LOW,MODE_LOWER,i);
+        BandLowMain[i]=iBands(NULL,WorkPeriod,20,2,0,PRICE_LOW,MODE_MAIN,i);
     }
     total=OrdersTotal();
     if(total<MaxTrades)
@@ -99,7 +101,7 @@ void OnTick()
                     Print("BUY order opened : ",OrderOpenPrice());
                 OpenPrice = OrderOpenPrice();
                 dStopLoss = OpenPrice-StopLoss*Point;
-                if(dStopLoss<BandMain[0]) dStopLoss=BandMain[0];
+                if(dStopLoss<BandUpMain[0]) dStopLoss=BandUpMain[0];
                 if(!OrderModify(ticket,OpenPrice,dStopLoss,OpenPrice+TakeProfit*Point,0,Green))
                     Print("OrderModify error ",GetLastError());
             }
@@ -140,7 +142,7 @@ void OnTick()
                     Print("SELL order opened : ",OrderOpenPrice());
                 OpenPrice = OrderOpenPrice();
                 dStopLoss = OpenPrice+StopLoss*Point;
-                if(dStopLoss>BandMain[0]) dStopLoss=BandMain[0];
+                if(dStopLoss>BandLowMain[0]) dStopLoss=BandLowMain[0];
                 if(!OrderModify(ticket,OpenPrice,dStopLoss,OpenPrice-TakeProfit*Point,0,Green))
                     Print("OrderModify error ",GetLastError());
             }
