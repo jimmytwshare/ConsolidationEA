@@ -105,7 +105,7 @@ void OnTick()
                     Print("BUY order opened : ",OrderOpenPrice());
                 OpenPrice = OrderOpenPrice();
                 dStopLoss = OpenPrice-StopLoss*Point;
-                if(dStopLoss<BandUpMain[0]) dStopLoss=BandUpMain[0];
+                if(dStopLoss>BandUpMain[0]) dStopLoss=BandUpMain[0];
                 if(!OrderModify(ticket,OpenPrice,dStopLoss,OpenPrice+TakeProfit*Point,0,Green))
                     Print("OrderModify error ",GetLastError());
             }
@@ -150,7 +150,7 @@ void OnTick()
                     Print("SELL order opened : ",OrderOpenPrice());
                 OpenPrice = OrderOpenPrice();
                 dStopLoss = OpenPrice+StopLoss*Point;
-                if(dStopLoss>BandLowMain[0]) dStopLoss=BandLowMain[0];
+                if(dStopLoss<BandLowMain[0]) dStopLoss=BandLowMain[0];
                 if(!OrderModify(ticket,OpenPrice,dStopLoss+15,OpenPrice-TakeProfit*Point,0,Green))
                     Print("OrderModify error ",GetLastError());
             }
