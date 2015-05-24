@@ -33,7 +33,8 @@ void OnTick()
     double dStopLoss = 0;
     static uint   LastBuyTick = 0;
     static uint   LastSellTick = 0;
-    double val=iStdDev(NULL,WorkPeriod,20,0,MODE_LWMA,PRICE_TYPICAL,0);
+    double valHigh=iStdDev(NULL,WorkPeriod,20,0,MODE_LWMA,PRICE_HIGH,0);
+    double valLow=iStdDev(NULL,WorkPeriod,20,0,MODE_LWMA,PRICE_LOW,0);
 //---
 // initial data checks
 // it is important to make sure that the expert works with a normal
@@ -85,7 +86,7 @@ void OnTick()
             //--- Ticket interval must bigger than WorkPeriod
             if((GetTickCount()-LastBuyTick)<(uint)WorkPeriod*60*1000*6) return;
             bBuyOpened = true;
-            ticket=OrderSend(Symbol(),OP_BUY,Lots,Ask,3,Ask-StopLoss*Point,Ask+TakeProfit*Point,"Buy:"+(string)val,111,0,Green);
+            ticket=OrderSend(Symbol(),OP_BUY,Lots,Ask,3,Ask-StopLoss*Point,Ask+TakeProfit*Point,"Buy:"+(string)valHigh,111,0,Green);
             Print("Symbol=",Symbol(), 
                 "    OP_BUY=",OP_BUY,
                 "    Lots=",Lots,
@@ -126,7 +127,7 @@ void OnTick()
             //--- Ticket interval must bigger than WorkPeriod
             if((GetTickCount()-LastSellTick)<(uint)WorkPeriod*60*1000*6) return;
             bSellOpened = true;
-            ticket=OrderSend(Symbol(),OP_SELL,Lots,Bid,3,Bid+StopLoss*Point,Bid-TakeProfit*Point,"Sell:"+(string)val,222,0,Red);
+            ticket=OrderSend(Symbol(),OP_SELL,Lots,Bid,3,Bid+StopLoss*Point,Bid-TakeProfit*Point,"Sell:"+(string)valLow,222,0,Red);
             Print("Symbol=",Symbol(), 
                 "    OP_SELL=",OP_SELL,
                 "    Lots=",Lots,
