@@ -147,7 +147,7 @@ void OnTick()
                 OpenPrice = OrderOpenPrice();
                 dStopLoss = OpenPrice+StopLoss*Point;
                 if(dStopLoss<BandLowMain[0]) dStopLoss=BandLowMain[0];
-                if(!OrderModify(ticket,OpenPrice,dStopLoss+15,OpenPrice-TakeProfit*Point,0,Green))
+                if(!OrderModify(ticket,OpenPrice,dStopLoss+15*Point,OpenPrice-TakeProfit*Point,0,Green))
                     Print("OrderModify error ",GetLastError());
             }
             else
