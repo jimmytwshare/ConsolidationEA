@@ -89,7 +89,7 @@ void OnTick()
             //--- Ticket interval must bigger than WorkPeriod
             if((GetTickCount()-LastBuyTick)<(uint)WorkPeriod*60*1000*6) return;
             bBuyOpened = true;
-            ticket=OrderSend(Symbol(),OP_BUY,Lots,Ask,3,Ask-StopLoss*Point,Ask+TakeProfit*Point,"Buy:"+(string)valHigh+","+(string)cciHigh,111,0,Green);
+            ticket=OrderSend(Symbol(),OP_BUY,Lots,Ask,3,Ask-StopLoss*Point,Ask+TakeProfit*Point,"Buy:"+(string)(float)valHigh+":"+(string)(float)cciHigh,111,0,Green);
             Print("Symbol=",Symbol(), 
                 "    OP_BUY=",OP_BUY,
                 "    Lots=",Lots,
@@ -130,7 +130,7 @@ void OnTick()
             //--- Ticket interval must bigger than WorkPeriod
             if((GetTickCount()-LastSellTick)<(uint)WorkPeriod*60*1000*6) return;
             bSellOpened = true;
-            ticket=OrderSend(Symbol(),OP_SELL,Lots,Bid,3,Bid+StopLoss*Point,Bid-TakeProfit*Point,"Sell:"+(string)valLow+","+(string)cciLow,222,0,Red);
+            ticket=OrderSend(Symbol(),OP_SELL,Lots,Bid,3,Bid+StopLoss*Point,Bid-TakeProfit*Point,"Sell:"+(string)(float)valLow+":"+(string)(float)cciLow,222,0,Red);
             Print("Symbol=",Symbol(), 
                 "    OP_SELL=",OP_SELL,
                 "    Lots=",Lots,
