@@ -179,6 +179,7 @@ void OnTick()
                         //--- close order and exit
                         if(!OrderClose(OrderTicket(),OrderLots(),Bid,3,Violet))
                             Print("OrderClose error ",GetLastError());
+                        LastBuyTick=0;
                         return;
                     }
                 }
@@ -208,6 +209,7 @@ void OnTick()
                         //--- close order and exit
                         if(!OrderClose(OrderTicket(),OrderLots(),Ask,3,Violet))
                             Print("OrderClose error ",GetLastError());
+                        LastSellTick=0;
                         return;
                     }
                 }
