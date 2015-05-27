@@ -172,7 +172,16 @@ void OnTick()
             {
                 bBuyOpened=true;
                 //--- should it be closed?
-
+                if((GetTickCount()-LastBuyTick)>(uint)WorkPeriod*60*1000*5)
+                {
+                    if((-150<cciHigh)&&(cciHigh<150))
+                    {
+                        //--- close order and exit
+                        if(!OrderClose(OrderTicket(),OrderLots(),Bid,3,Violet))
+                            Print("OrderClose error ",GetLastError());
+                        return;
+                    }
+                }
                 //--- check for trailing stop
                 if(TrailingStop>0)
                 {
@@ -192,7 +201,16 @@ void OnTick()
             {
                 bSellOpened=true;
                 //--- should it be closed?
-
+                if((GetTickCount()-LastSellTick)>(uint)WorkPeriod*60*1000*5)
+                {
+                    if((-150<cciLow)&&(cciLow<150))
+                    {
+                        //--- close order and exit
+                        if(!OrderClose(OrderTicket(),OrderLots(),Ask,3,Violet))
+                            Print("OrderClose error ",GetLastError());
+                        return;
+                    }
+                }
                 //--- check for trailing stop
                 if(TrailingStop>0)
                 {
