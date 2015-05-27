@@ -37,7 +37,9 @@ void OnTick()
     double valHigh=iStdDev(NULL,WorkPeriod,20,0,MODE_LWMA,PRICE_HIGH,0);
     double valLow=iStdDev(NULL,WorkPeriod,20,0,MODE_LWMA,PRICE_LOW,0);
     double cciHigh=iCCI(NULL,WorkPeriod,20,PRICE_HIGH,0);
+    double cciHighLast=iCCI(NULL,WorkPeriod,20,PRICE_HIGH,1);
     double cciLow=iCCI(NULL,WorkPeriod,20,PRICE_LOW,0);
+    double cciLowLast=iCCI(NULL,WorkPeriod,20,PRICE_LOW,1);
 //---
 // initial data checks
 // it is important to make sure that the expert works with a normal
@@ -174,7 +176,7 @@ void OnTick()
                 //--- should it be closed?
                 if((GetTickCount()-LastBuyTick)>(uint)WorkPeriod*60*1000*5)
                 {
-                    if((-150<cciHigh)&&(cciHigh<150))
+                    if((-150<cciHighLast)&&(cciHighLast<150))
                     {
                         //--- close order and exit
                         if(!OrderClose(OrderTicket(),OrderLots(),Bid,3,Violet))
@@ -204,7 +206,7 @@ void OnTick()
                 //--- should it be closed?
                 if((GetTickCount()-LastSellTick)>(uint)WorkPeriod*60*1000*5)
                 {
-                    if((-150<cciLow)&&(cciLow<150))
+                    if((-150<cciLowLast)&&(cciLowLast<150))
                     {
                         //--- close order and exit
                         if(!OrderClose(OrderTicket(),OrderLots(),Ask,3,Violet))
