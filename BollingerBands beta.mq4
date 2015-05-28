@@ -9,19 +9,15 @@
 #property strict
 //--- input parameters
 // TakeProfit=50.0, TrailingStop=35.0
-input double   TakeProfit=62.5;
+input double   TakeProfit=50.0;
 input double   StopLoss=80.0;
 input double   Lots=0.1;
-input double   TrailingStop=43.75;
+input double   TrailingStop=35;
 input int      WorkPeriod=PERIOD_M1;
 input int      MaxTrades=2;
 input bool     bDebug=true;
-bool  bBuyOpened = false;
-bool  bSellOpened = false;
-uint  LastBuyTick = 0;
-uint  LastSellTick = 0;
-uint  BuyMarkStart = 0;
-uint  SellMarkStart = 0;
+bool bBuyOpened = false;
+bool bSellOpened = false;
 //+------------------------------------------------------------------+
 //| Expert tick function                                             |
 //+------------------------------------------------------------------+
@@ -36,6 +32,8 @@ void OnTick()
     double BandLowMain[6] = {0,0,0,0,0,0};
     double OpenPrice = 0;
     double dStopLoss = 0;
+    static uint   LastBuyTick = 0;
+    static uint   LastSellTick = 0;
     double valHigh=iStdDev(NULL,WorkPeriod,20,0,MODE_LWMA,PRICE_HIGH,0);
     double valLow=iStdDev(NULL,WorkPeriod,20,0,MODE_LWMA,PRICE_LOW,0);
     double cciHigh=iCCI(NULL,WorkPeriod,20,PRICE_HIGH,0);
@@ -79,19 +77,8 @@ void OnTick()
         }
         //--- check for long position (BUY) possibility
         if(High[1]<BandUp[1] && High[2]<BandUp[2] && High[3]<BandUp[3] &&
-            High[4]<BandUp[4] && High[5]<BandUp[5] && (bBuyOpened==false) &&
-            (((Bid+15*Point)>BandUp[0])||(BuyMarkStart>0)))
+            High[4]<BandUp[4] && High[5]<BandUp[5] && (Bid+15*Point)>BandUp[0] && (bBuyOpened==false))
         {
-            if(BuyMarkStart==0) 
-            {
-                BuyMarkStart = GetTickCount();
-                return;
-            }
-            else
-            {
-                if((GetTickCount()-BuyMarkStart)<(uint)WorkPeriod*60*1000/2) return;
-                else BuyMarkStart = 0;
-            }
             if(bDebug==true)
             {
                 Print("Bid+15*Point=",(int)(((Bid+15*Point)-BandUp[0])*100000), 
@@ -99,9 +86,7 @@ void OnTick()
                       ",H[2]=",(int)((BandUp[2]-High[2])*100000),
                       ",H[3]=",(int)((BandUp[3]-High[3])*100000),
                       ",H[4]=",(int)((BandUp[4]-High[4])*100000),
-                      ",H[5]=",(int)((BandUp[5]-High[5])*100000),
-                      ",valHigh=",(float)valHigh,
-                      ",cciHigh=",(float)cciHigh);
+                      ",H[5]=",(int)((BandUp[5]-High[5])*100000));
             }
             //--- Ticket interval must bigger than WorkPeriod
             if((GetTickCount()-LastBuyTick)<(uint)WorkPeriod*60*1000*6) return;
@@ -133,19 +118,8 @@ void OnTick()
         }
         //--- check for short position (SELL) possibility
         if(Low[1]>BandLow[1] && Low[2]>BandLow[2] && Low[3]>BandLow[3] &&
-            Low[4]>BandLow[4] && Low[5]>BandLow[5] && (bSellOpened==false) &&
-            ((Bid<BandLow[0])||(SellMarkStart>0)))
+            Low[4]>BandLow[4] && Low[5]>BandLow[5] && Bid<BandLow[0] && (bSellOpened==false))
         {
-            if(SellMarkStart==0) 
-            {
-                SellMarkStart = GetTickCount();
-                return;
-            }
-            else
-            {
-                if((GetTickCount()-SellMarkStart)<(uint)WorkPeriod*60*1000/2) return;
-                else SellMarkStart = 0;
-            }
             if(bDebug==true)
             {
                 Print("Bid=",(int)((BandLow[0]-Bid)*100000), 
@@ -153,9 +127,7 @@ void OnTick()
                       ",L[2]=",(int)((Low[2]-BandLow[2])*100000),
                       ",L[3]=",(int)((Low[3]-BandLow[3])*100000),
                       ",L[4]=",(int)((Low[4]-BandLow[4])*100000),
-                      ",L[5]=",(int)((Low[5]-BandLow[5])*100000),
-                      ",valLow=",(float)valLow,
-                      ",cciLow=",(float)cciLow);
+                      ",L[5]=",(int)((Low[5]-BandLow[5])*100000));
             }
             //--- Ticket interval must bigger than WorkPeriod
             if((GetTickCount()-LastSellTick)<(uint)WorkPeriod*60*1000*6) return;
