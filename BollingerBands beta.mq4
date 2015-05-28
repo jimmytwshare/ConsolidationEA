@@ -89,7 +89,7 @@ void OnTick()
             }
             else
             {
-                if((GetTickCount()-BuyMarkStart)<(uint)WorkPeriod*60*1000*2) return;
+                if((GetTickCount()-BuyMarkStart)<(uint)WorkPeriod*60*1000/2) return;
                 else BuyMarkStart = 0;
             }
             if(bDebug==true)
@@ -143,7 +143,7 @@ void OnTick()
             }
             else
             {
-                if((GetTickCount()-SellMarkStart)<(uint)WorkPeriod*60*1000*2) return;
+                if((GetTickCount()-SellMarkStart)<(uint)WorkPeriod*60*1000/2) return;
                 else SellMarkStart = 0;
             }
             if(bDebug==true)
